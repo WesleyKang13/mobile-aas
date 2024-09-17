@@ -35,9 +35,9 @@ class LoginController extends Controller
             'password' => 'required|string|min:3|max:100',
         ]);
 
-        // Find User
+        // Find user
         $user = User::query()
-            ->where( 'email', $valid['email']) // By email or usrename
+            ->where( 'email', $valid['email']) // By email
             ->first();
 
         // Not found?

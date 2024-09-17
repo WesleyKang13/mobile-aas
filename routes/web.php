@@ -14,14 +14,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('/welcome');
+    return redirect('/dashboard');
 });
 
 Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'index']);
 Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'authenticate']);
 
 Route::middleware(['userauth'])->group(function(){
-    Route::get('/logout', [App\Http\Controllers\Login\LoginController::class, 'logout']);
+    Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard']);
+    Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'index']);
+    Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout']);
 });
 
 
