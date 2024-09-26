@@ -24,6 +24,11 @@ Route::middleware(['userauth'])->group(function(){
     Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard']);
     Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'index']);
     Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout']);
+
+    // get user location
+    Route::get('/user/{id}/course/{course_id}/location', [App\Http\Controllers\AttendanceController::class, 'location']);
+    Route::get('/attendance/{id}/close', [App\Http\Controllers\AttendanceController::class, 'close']);
+
 });
 
 

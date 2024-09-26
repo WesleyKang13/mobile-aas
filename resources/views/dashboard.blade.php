@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="content">
-                    Course Year:{{$course->year}}
+                    <h1>Course Year:{{$course->year}}</h1></b>
                     Course Code:{{$course->code}}
                 </div>
 

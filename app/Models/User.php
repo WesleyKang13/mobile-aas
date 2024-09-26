@@ -40,6 +40,7 @@ class User extends Authenticatable
 
             foreach($this_week as $tw){
                 $details[$tw->id] = [
+                    'course_id' => $tw->course->id,
                     'class' => $tw->classroom->code,
                     'course_name' => $tw->course->name,
                     'time' => $tw->start_time. ' - '.$tw->end_time
