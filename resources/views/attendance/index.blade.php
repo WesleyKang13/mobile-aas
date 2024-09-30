@@ -34,7 +34,7 @@
                             </div>
                             @if(Auth::user()->role == 'lecturer')
                                 <div class="col-6 text-end">
-                                    <a href="">Attendance Sheet</a>
+                                    <a href="" class="btn btn-primary">Attendance Sheet</a>
                                 </div>
                             @endif
                         </div>
