@@ -29,33 +29,31 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-12">
                                 <h5 class="card-title">Course: {{$d['course_name']}}</h5>
                             </div>
-                            @if(Auth::user()->role == 'lecturer')
-                                <div class="col-6 text-end">
-                                    <a href="" class="btn btn-primary">Attendance Sheet</a>
-                                </div>
-                            @endif
                         </div>
                         <p class="card-text">Time: {{$d['time']}}</p>
                         @if(Auth::user()->role == 'lecturer')
                             @if(isset($status[$d['course_id']]) and $status[$d['course_id']] == 'Open')
-                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location" class="btn btn-success" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
-                                <a href="/attendance/{{$lecturer[$d['course_id']]['id']}}/close" class="btn btn-danger">Close</a>
+                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location" class="btn btn-success w-100 m-1" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
+                                <a href="/attendance/{{$lecturer[$d['course_id']]['id']}}/close" class="btn btn-danger w-100 m-1">Close</a>
                             @else
-                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location" class="btn btn-danger" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
+                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location" class="btn btn-danger w-100 m-1" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
                             @endif
+
+                            <a href="/attendance/{{$d['course_id']}}/{{date('Y-m-d')}}" class="btn btn-primary w-100 m-1">Attendance Sheet</a>
+
                         @else
                             @if(isset($status[$d['course_id']]) and $status[$d['course_id']] == 'Successful')
                                 <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location"
-                                    class="btn btn-success"
+                                    class="btn btn-success w-100"
                                     id="geolocation_{{$d['course_id']}}">
                                     Submitted
                                 </a>
                             @else
                                 <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location"
-                                    class="btn btn-danger"
+                                    class="btn btn-danger w-100"
                                     id="geolocation_{{$d['course_id']}}">
                                     Submit
                                 </a>

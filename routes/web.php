@@ -23,6 +23,7 @@ Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'authen
 Route::middleware(['userauth'])->group(function(){
     Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard']);
     Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'index']);
+    Route::get('/attendance/{course_id}/{date}', [App\Http\Controllers\AttendanceController::class, 'sheet']);
     Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout']);
 
     // get user location

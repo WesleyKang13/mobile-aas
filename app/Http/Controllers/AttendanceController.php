@@ -111,7 +111,7 @@ class AttendanceController extends Controller{
         $attendance->save();
 
         $distance = '';
-        // TODO:: calculate maters between lecturer and students
+        // TODO:: calculate meters between lecturer and students
         if($attendance->user->role == 'student'){
             $distance = $attendance->distance($lecturerCoor['lat'], $lecturerCoor['long'], $attendance->lat, $attendance->long);
 
@@ -139,5 +139,30 @@ class AttendanceController extends Controller{
 
         return redirect('/attendance')->withSuccess('Attendance Close!');
 
+    }
+
+    public function sheet($course_id, $date){
+        $attendances = Attendance::query()
+            ->where('course_id', $course_id)
+            ->where('date', date("Y-m-d", strtotime($date)))
+            ->get();
+
+        $course = '';
+        $users = [];
+
+        foreach($attendances as $att){
+            $user = User::findOrFail($att->user_id);
+            $course = Course::findOrFail($att->course_id);
+
+            $users[$att->course_id] = [
+                'username' => $user->firstname. ' '.$user->lastname,
+                'time' => $att->created_at
+            ];
+        }
+
+        return view('attendance.sheet')->with([
+            'users' => $users,
+            'course' => $course
+        ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Timetable;
+use App\Models\TimetableEntry;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 
@@ -17,36 +18,40 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     public function timetable($id){
-        // get current user's timetable
-
         $today = now();
-        $date = new DateTime($today);
-        $week = $date->format("W");
-        $day = $date->format("D");
-
         $user = User::findOrFail($id);
 
-        $timetables = DB::table('users_timetables')->where('user_id', $user->id)->get();
+        $date = new DateTime($today);
+        $day = $date->format("D");
 
-        $this_week = [];
         $details = [];
 
+        $timetables = DB::table('users_timetables')->where('user_id', $user->id)->get();
+        // TODO: get user timetable by matching today's date and the ( FROM & TO ) in the timetable table and the current day
+
         foreach($timetables as $t){
-            $this_week = Timetable::query()
-                    ->where('week_number', $week)
-                    ->where('day', $day)
-                    ->orderBy('start_time', 'asc')
-                    ->get();
+            $timetable = Timetable::findOrFail($t->timetable_id);
 
-            foreach($this_week as $tw){
-                $details[$tw->id] = [
-                    'course_id' => $tw->course->id,
-                    'class' => $tw->classroom->code,
-                    'course_name' => $tw->course->name,
-                    'time' => $tw->start_time. ' - '.$tw->end_time
-                ];
+            // get timetable from and to
+            if($today >= $timetable->from and $today <= $timetable->to){
+                // get timetable entries
+                $entries = TimetableEntry::query()
+                        ->where('timetable_id', $timetable->id)
+                        ->where('day', $day)
+                        ->get();
+
+                // loop through the entries
+                foreach($entries as $e){
+                    if(ucfirst($e->day) == $day){
+                        $details[$t->id] = [
+                            'course_id' => $timetable->course->id,
+                            'class' => $timetable->classroom->code,
+                            'course_name' => $timetable->course->name,
+                            'time' => $e->starttime. ' - '.$e->endtime
+                        ];
+                    }
+                }
             }
-
         }
 
         return $details;
