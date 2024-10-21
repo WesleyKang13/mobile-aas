@@ -8,7 +8,8 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5">
-                <li class="nav-item d-flex">
+                <li
+                 class="nav-item d-flex">
                     <a class="nav-link text-dark text-nowrap me-auto" href="/dashboard">Dashboard</a>
                     <a class="nav-link text-dark text-nowrap" href="/attendance">Attendance</a>
                 </li>

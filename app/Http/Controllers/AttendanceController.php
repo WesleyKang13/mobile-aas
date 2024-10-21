@@ -111,7 +111,6 @@ class AttendanceController extends Controller{
         $attendance->save();
 
         $distance = '';
-        // TODO:: calculate meters between lecturer and students
         if($attendance->user->role == 'student'){
             $distance = $attendance->distance($lecturerCoor['lat'], $lecturerCoor['long'], $attendance->lat, $attendance->long);
 
@@ -146,6 +145,10 @@ class AttendanceController extends Controller{
             ->where('course_id', $course_id)
             ->where('date', date("Y-m-d", strtotime($date)))
             ->get();
+
+        if($attendances->isEmpty() or $attendances == null ){
+            return back()->withError('You have not open for attendance yet.');
+        }
 
         $course = '';
         $users = [];

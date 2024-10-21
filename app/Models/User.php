@@ -27,7 +27,6 @@ class User extends Authenticatable
         $details = [];
 
         $timetables = DB::table('users_timetables')->where('user_id', $user->id)->get();
-        // TODO: get user timetable by matching today's date and the ( FROM & TO ) in the timetable table and the current day
 
         foreach($timetables as $t){
             $timetable = Timetable::findOrFail($t->timetable_id);

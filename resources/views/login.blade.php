@@ -25,7 +25,7 @@
         </div>
 
         <div class="col-12 text-center">
-            <a href="#">Forgot Password ? </a>
+            <a href="/forgot_password">Forgot Password ? </a>
         </div>
 
     </div>

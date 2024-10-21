@@ -7,6 +7,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -104,6 +106,65 @@ class LoginController extends Controller
         }
         // redirect
         return redirect('/login')->withSuccess('You have been logged out successfully!');
+    }
+
+    public function forgotPassword(){
+        return view('password.forgot_password');
+    }
+
+    public function email(){
+        $valid = request()->validate([
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.exists' => 'The user email you have entered is not found'
+        ]);
+
+        $user = User::query()->where('email', $valid['email'])->first();
+
+        $data = [
+            'user' => $user
+        ];
+
+        Mail::send('password.mail', $data, function($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Password Reset Request');
+        });
+
+        return back()->withSuccess('Reset Password Mail has sent to the account, please check your inbox.');
+
+
+    }
+
+    public function password($id){
+        $user = User::findOrFail($id);
+        return view('password.change_password')->with('user', $user);
+    }
+
+    public function passwordConfirm($id){
+        $valid = request()->validate([
+            'current' => 'required',
+            'password' => 'required|confirmed',
+        ]);
+
+        $user = User::findOrFail($id);
+
+        if (Auth::attempt(['email' => $user->email,
+                'password' => $valid['current'],
+                'enabled' => 1
+             ])){
+
+            // current password is valid
+            $new_password = Hash::make($valid['password']);
+            $user->password = $new_password;
+            $user->save();
+
+            return redirect('/login')->withSuccess('Password Changed Successfully');
+        }else{
+            return back()->withInput()->withError('Incorrect Current Password');
+        }
+
+
+
     }
 
 

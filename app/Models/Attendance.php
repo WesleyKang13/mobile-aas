@@ -16,6 +16,10 @@ class Attendance extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function course(){
+        return $this->belongsTo(Course::class);
+    }
+
     public function distance($lat1, $long1, $lat2, $long2){
         $theta = $long1 - $long2;
         $miles = (sin(deg2rad($lat1)) * sin(deg2rad($lat2))) + (cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta)));
