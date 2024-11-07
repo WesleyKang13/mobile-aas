@@ -35,7 +35,7 @@ class HomeController extends Controller{
 
             foreach($entries as $e){
                 $classes_calculation = $timetable->duration($timetable->from, $timetable->to, $e->created_at);
-
+                
                  // this is for checking the attendance rate
                 $totalAttendance = Attendance::query()
                     ->where('course_id', $timetable->course_id)

@@ -2,7 +2,7 @@
 @section('title', 'Your Dashboard')
 
 @section('content')
-<div class="container shadow">
+<div class="container shadow mb-5">
     <div class="row">
         <div class="col-12">
             <h1>Hi {{$user->firstname. ' ' .Auth::user()->lastname}}</h1>
@@ -12,29 +12,32 @@
             <h1>Attendance(s) to submit today</h1>
         </div>
 
-        <table class="table table-striped">
-            <tr>
-                <th>Course Name</th>
-                <th>Classroom</th>
-                <th>Time</th>
-                <th>Status</th>
-            </tr>
-            
-            @foreach($data as $d)
+        <div class="col-12">
+            <table class="table table-striped">
                 <tr>
-                    <td>{{$d['course_name']}}</td>
-                    <td>{{$d['class_code']}}</td>
-                    <td>{{$d['time']}}</td>
-                    <td>
-                        <div  class="{{($d['status'] == 'No') ? 'badge bg-danger' : 'badge bg-success'}}">
-                            {{$d['status']}}
-                        </div>
-                    </td>
-
+                    <th>Course Name</th>
+                    <th>Classroom</th>
+                    <th>Time</th>
+                    <th>Status</th>
                 </tr>
-            @endforeach
 
-        </table>
+                @foreach($data as $d)
+                    <tr>
+                        <td>{{$d['course_name']}}</td>
+                        <td>{{$d['class_code']}}</td>
+                        <td>{{$d['time']}}</td>
+                        <td>
+                            <div  class="{{($d['status'] == 'No') ? 'badge bg-danger' : 'badge bg-success'}}">
+                                {{$d['status']}}
+                            </div>
+                        </td>
+
+                    </tr>
+                @endforeach
+
+            </table>
+        </div>
+
 
         <div class="col-12">
             <h1>Attendance Rate</h1>
@@ -44,15 +47,15 @@
         <div class="col-12">
             <table class="table table-striped">
                 <tr>
-                    <th>Course Name</th>
-                    <th>Attendance Rating</th>
+                    <th style="width:80%;">Course Name</th>
+                    <th style="width:20%;">Attendance Rating</th>
                 </tr>
 
                 @foreach($attendanceData as $id => $attendance)
                 <tr>
-                    <td>{{$attendance['course_name']}}</td>
-                    <td style="width: 10%; height: 10%px;">
-                            <canvas id="attendanceDonutChart-{{$id}}"></canvas>
+                    <td style="width:80%;">{{$attendance['course_name']}}</td>
+                    <td style="width:20%;">
+                        <canvas id="attendanceDonutChart-{{$id}}" style="height:150px;width:150px;"></canvas>
                     </td>
                 </tr>
                 @endforeach

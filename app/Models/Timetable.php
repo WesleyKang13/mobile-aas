@@ -50,6 +50,10 @@ class Timetable extends Model
             $total = round($weeks * $timetable);
         }
 
+        if($supposed == 0){
+            $supposed = 1;
+        }
+
         $data = [
             'total' => $total,
             'supposed' => $supposed
