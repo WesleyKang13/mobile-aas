@@ -24,6 +24,13 @@ class HomeController extends Controller{
                     ->where('day', lcfirst(date('D')))
                     ->get();
 
+            // get all entry instead of just today
+            $attendace_rate = TimetableEntry::query()
+                    ->where('timetable_id', $ut->timetable_id)
+                    ->get();
+
+
+
             $timetable = Timetable::findOrFail($ut->timetable_id);
 
             // get attendance check
@@ -33,17 +40,16 @@ class HomeController extends Controller{
                 ->where('date', date('Y-m-d'))
                 ->first();
 
-            foreach($entries as $e){
-                $classes_calculation = $timetable->duration($timetable->from, $timetable->to, $e->created_at);
-                
+            foreach($attendace_rate as $ar){
                  // this is for checking the attendance rate
-                $totalAttendance = Attendance::query()
-                    ->where('course_id', $timetable->course_id)
-                    ->where('user_id', $user->id)
-                    ->where('date', '>=', $timetable->from)
-                    ->where('date', '<=', $timetable->to)
-                    ->count();
+                 $totalAttendance = Attendance::query()
+                 ->where('course_id', $timetable->course_id)
+                 ->where('user_id', $user->id)
+                 ->where('date', '>=', $timetable->from)
+                 ->where('date', '<=', $timetable->to)
+                 ->count();
 
+                $classes_calculation = $timetable->duration($timetable->from, $timetable->to, $ar->created_at);
                 $present = $totalAttendance / $classes_calculation['supposed'] ;
                 $present *= 100;
                 $absent = 100 - $present;
@@ -53,6 +59,10 @@ class HomeController extends Controller{
                     'present' => $present,
                     'absent' => $absent
                 ];
+            }
+
+
+            foreach($entries as $e){
 
                 if($attendance !== null and $attendance->status == 'Successful'){
                     $data[$e->timetable_id] = [
