@@ -5,11 +5,11 @@
 <div class="container shadow mb-5">
     <div class="row">
         <div class="col-12">
-            <h1>Hi {{$user->firstname. ' ' .Auth::user()->lastname}}</h1>
+            <h1 class="fs-3">Hi {{ucfirst($user->firstname). ' ' .ucfirst($user->lastname)}}</h1>
         </div>
 
         <div class="col-12">
-            <h1>Attendance(s) to submit today</h1>
+            <h1 class="fs-3">Attendance(s) to submit {{date('Y-m-d')}}</h1>
         </div>
 
         <div class="col-12">
@@ -40,7 +40,7 @@
 
 
         <div class="col-12">
-            <h1>Attendance Rate</h1>
+            <h1 class="fs-3">Attendance Rate</h1>
         </div>
 
         {{-- Attendance Rate Donut Charts for Each Course --}}
