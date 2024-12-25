@@ -52,6 +52,11 @@ class AttendanceController extends Controller{
     public function location($user_id, $course_id){
         $latitude = request()->get('lat');
         $longitude = request()->get('long');
+        $accuracy = request()->get('accuracy');  // Get accuracy from request
+
+        if ($accuracy > 100) {  
+            return back()->withError('Your location accuracy is too low, please try again.');
+        }
 
         $user = User::findOrFail($user_id);
         $course = Course::findOrFail($course_id);

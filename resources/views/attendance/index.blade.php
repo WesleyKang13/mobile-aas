@@ -87,9 +87,10 @@
 
       // Get the geolocation button for the specific course
       const geolocationBtn = document.getElementById("geolocation_" + courseId);
+      const accuracy = crd.accuracy;
 
       // Construct the URL with the course ID, latitude, and longitude using backticks (template literals)
-      geolocationBtn.href = `/user/{{$user->id}}/course/${courseId}/location?lat=${lat}&long=${long}`;
+      geolocationBtn.href = `/user/{{$user->id}}/course/${courseId}/location?lat=${lat}&long=${long}&accuracy=${accuracy}`;
 
       console.log(`Latitude: ${lat}, Longitude: ${long}`);
       console.log(`More or less ${crd.accuracy} meters.`);
