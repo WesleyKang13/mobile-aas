@@ -16,7 +16,7 @@
             </ul>
 
             <ul class="navbar-nav mb-2 mb-lg-0 fs-5">
-                <a class="nav-link text-dark text-nowrap" href="/students"><i class="fa fa-envelope"></i></a>
+                <a class="nav-link text-dark text-nowrap" href="/notifications"><i class="fa fa-envelope"></i></a>
                 <a href="/logout" class="nav-link text-dark text-nowrap">Logout</a>
             </ul>
         </div>
