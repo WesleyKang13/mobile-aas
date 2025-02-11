@@ -15,11 +15,71 @@
                 </li>
             </ul>
 
-            <ul class="navbar-nav mb-2 mb-lg-0 fs-5">
-                <a class="nav-link text-dark text-nowrap" href="/notifications"><i class="fa fa-envelope"></i></a>
-                <a href="/logout" class="nav-link text-dark text-nowrap">Logout</a>
+            <ul class="navbar-nav mb-lg-0 fs-5">
+                <div class="btn-group">
+                    <div class="btn-group dropstart" role="group">
+                      <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split fs-4" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropstart</span>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <a class="inbox nav-link text-dark text-nowrap" href="/notifications">Inbox</a>
+                        <a class="read nav-link text-dark text-nowrap" href="/notifications?status=read">Read Messages</a>
+                        <a class="draft nav-link text-dark text-nowrap" href="/notifications?status=draft">Draft</a>
+                        <a class="sent nav-link text-dark text-nowrap" href="/notifications?status=sent">Sent</a>
+                        <hr>
+                        <p class="nav-link text-dark text-nowrap text-muted">Counts are added with replies</p>
+                      </ul>
+                    </div>
+                    <button type="button" class="btn btn-light">
+                        <a class="nav-link text-dark text-nowrap fs-4 p-0 m-0" href="/notifications?status=unread"><i class="fa fa-envelope"></i></a>
+                    </button>
+                </div>
             </ul>
+
+            <a href="/logout" class="nav-link text-dark text-nowrap">Logout</a>
         </div>
     </div>
 </nav>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var inbox = $(".inbox");
+        var read = $(".read");
+        var draft = $(".draft");
+        var sent = $(".sent");
+
+        function checkNotifications() {
+            $.ajax({
+                url: "/notifications/count",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    if (data.unread > 0) {
+                        $(".fa-envelope").append('<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"></span>');
+                    } else {
+                        $(".fa-envelope span").remove();
+                    }
+
+                    inbox.html("Inbox (" + data.inbox + ")");
+                    read.html("Read Messages (" + data.read + ")");
+                    draft.html("Draft (" + data.draft + ")");
+                    sent.html("Sent (" + data.sent + ")");
+
+                    setTimeout(function(){
+                        checkNotifications();
+                    }, 30000);
+                },
+                error: function () {
+                    console.error("Failed to fetch notifications");
+                    setTimeout(function(){
+                        checkNotifications();
+                    }, 30000);
+                }
+            });
+        }
+
+        checkNotifications();
+});
+</script>
