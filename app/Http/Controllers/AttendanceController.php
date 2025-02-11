@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Attendance;
+use App\Models\Timetable;
+use App\Models\TimetableEntry;
+use App\Models\UserTimetable;
 use Illuminate\Support\Facades\Auth;
 use DateTime;
 use Illuminate\Support\Facades\DB;
@@ -54,9 +57,9 @@ class AttendanceController extends Controller{
         $longitude = request()->get('long');
         $accuracy = request()->get('accuracy');  // Get accuracy from request
 
-        if ($accuracy > 100) {  
-            return back()->withError('Your location accuracy is too low, please try again.');
-        }
+        // if ($accuracy > 100) {
+        //     return back()->withError('Your location accuracy is too low, please try again.');
+        // }
 
         $user = User::findOrFail($user_id);
         $course = Course::findOrFail($course_id);
@@ -146,6 +149,10 @@ class AttendanceController extends Controller{
     }
 
     public function sheet($course_id, $date){
+        if($date !== date('Y-m-d')){
+            return back()->withError('You can only view attendance for today');
+        }
+
         $attendances = Attendance::query()
             ->where('course_id', $course_id)
             ->where('date', date("Y-m-d", strtotime($date)))
@@ -171,6 +178,67 @@ class AttendanceController extends Controller{
         return view('attendance.sheet')->with([
             'users' => $users,
             'course' => $course
+        ]);
+    }
+
+    public function advanced_view($course_id, $date){
+        // get the timetable id and day/date
+        $timetables = Timetable::query()->where('course_id', $course_id)->get();
+        $course = Course::findOrFail($course_id);
+
+        $day = date('D', strtotime($date));
+
+        $timetable = '';
+        $entries = [];
+
+        foreach($timetables as $t){
+            $entries = TimetableEntry::query()->where('timetable_id', $t->id)
+                ->where('day', lcfirst($day))
+                ->first();
+        }
+
+        $users = [
+            'all' => [],
+            'yes' => [],
+            'no' => []
+        ];
+
+        $submitted = [];
+
+        // get how many students are supposed to be in class
+        $users_timetables = UserTimetable::query()->where('timetable_id', $entries->timetable_id)->get();
+
+
+        // find how many has already submitted attendance
+        foreach($users_timetables as $ut){
+            $submitted_attendance = Attendance::query()->where('user_id', $ut->user_id)
+                ->where('course_id', $course_id)
+                ->where('date', date('Y-m-d', strtotime($date)))
+                ->get();
+
+
+            // if yes then indicate as yes otherwise no
+            foreach($submitted_attendance as $sa){
+                $submitted[$sa->user_id] = $sa->user_id;
+            }
+
+            // make sure only students
+            if($ut->user->role == 'student'){
+                if(in_array($ut->user_id, $submitted)){
+                    $users['yes'][] = $ut->user;
+                }else{
+                    $users['no'][] = $ut->user;
+                }
+
+                $users['all'][] = $ut->user;
+            }
+
+        }
+
+        return view('attendance.advanced')->with([
+            'users' => $users,
+            'course' => $course,
+            'date' => $date
         ]);
     }
 }

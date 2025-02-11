@@ -30,6 +30,7 @@ Route::middleware(['userauth'])->group(function(){
     Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'index']);
     Route::get('/attendance/{id}/close', [App\Http\Controllers\AttendanceController::class, 'close']);
     Route::get('/attendance/{course_id}/{date}', [App\Http\Controllers\AttendanceController::class, 'sheet']);
+    Route::get('/attendance/{id}/{date}/advanced', [App\Http\Controllers\AttendanceController::class, 'advanced_view']);
     Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout']);
 
     // get user location
