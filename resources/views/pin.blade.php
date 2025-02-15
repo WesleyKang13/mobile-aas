@@ -13,7 +13,7 @@
 
 
         <div class="col-12 pb-2 text-start mt-5">
-            <span><b><i>Please check your inbox for the 6-digit pin</i></b></span>
+            <span><b><i>Please check your inbox for the 6 digit pin</i></b></span>
             {!!FB::input('pin', 'Pin')!!}</br>
         </div>
 
