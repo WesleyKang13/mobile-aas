@@ -19,7 +19,8 @@ Route::get('/', function () {
 
 Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'index']);
 Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'authenticate']);
-
+Route::get('/pin', [App\Http\Controllers\Auth\LoginController::class, 'pin']);
+Route::post('/pin', [App\Http\Controllers\Auth\LoginController::class, 'pin']);
 Route::get('/forgot_password', [App\Http\Controllers\Auth\LoginController::class, 'forgotPassword']);
 Route::get('/email', [App\Http\Controllers\Auth\LoginController::class, 'email']);
 Route::get('/change_password/{id}', [App\Http\Controllers\Auth\LoginController::class, 'password']);
