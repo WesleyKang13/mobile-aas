@@ -5,6 +5,7 @@
 
 <div class="container shadow">
     {!!FB::open('/login', 'post')!!}
+    {!!FB::setErrors($errors)!!}
     @csrf
     <div class="row text-center" style="margin-top:20%; ">
         <div class="col-12">

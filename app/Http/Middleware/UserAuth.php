@@ -17,6 +17,10 @@ class UserAuth
      */
     public function handle(Request $request, Closure $next, String $role = null): Response
     {
+        if (!request()->session()->get('auth_status', false)) {
+            return redirect('/login')->withSuccess('You must login first!.');
+        }
+
         // Check if Not Authenticated
         if (!Auth::check()) {
             // Not Authenticated - Redirect
