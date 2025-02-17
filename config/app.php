@@ -184,7 +184,6 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'FB' => App\Classes\FormBuilder::class,
         'userauth' => App\Http\Middleware\UserAuth::class,
-        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     ])->toArray(),
 
 ];
