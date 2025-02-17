@@ -163,7 +163,6 @@ return [
         /*
          * Application Service Providers...
          */
-        yajra\Datatables\DatatablesServiceProvider::class,
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
@@ -184,8 +183,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'FB' => App\Classes\FormBuilder::class,
-        'userauth' => App\Http\Middleware\UserAuth::class,
-        'Datatables' => yajra\Datatables\Datatables::class,
+        'userauth' => App\Http\Middleware\UserAuth::class
     ])->toArray(),
 
 ];
