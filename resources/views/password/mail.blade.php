@@ -9,8 +9,8 @@
 <body>
     <p>
         Dear {{$user->firstname. ' '. $user->lastname}},</br></br>
-            Please proceed to click the link <a href="{{env('FORGOT_PASSWORD_URL')}}/{{$user->id}}">HERE IF YOU WISH TO CONTINUE</a>.</br>
-            Please ignore this email if you did not generate this request! </br>
+            Please use this pin to continue: <b>{{$pin}}</b></br>
+            Please ignore this email if you did not generate this request and report to the Admin. </br>
 
             If you have any questions or enquiries,
             please do not hesitate to contact <a href="mailto:admin@example.com">admin@example.com</a></br></br>
@@ -18,8 +18,6 @@
         Best Regards,</br>
 
         Support Team
-
-
     </p>
 </body>
 </html>

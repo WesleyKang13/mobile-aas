@@ -23,10 +23,14 @@ Route::get('/pin', [App\Http\Controllers\Auth\LoginController::class, 'pin']);
 Route::post('/pin', [App\Http\Controllers\Auth\LoginController::class, 'pin']);
 Route::get('/forgot_password', [App\Http\Controllers\Auth\LoginController::class, 'forgotPassword']);
 Route::get('/email', [App\Http\Controllers\Auth\LoginController::class, 'email']);
-Route::get('/change_password/{id}', [App\Http\Controllers\Auth\LoginController::class, 'password']);
-Route::post('/change_password/{id}', [App\Http\Controllers\Auth\LoginController::class, 'passwordConfirm']);
+Route::get('/reset_password', [App\Http\Controllers\Auth\LoginController::class, 'reset']);
+Route::post('/reset_password', [App\Http\Controllers\Auth\LoginController::class, 'resetPassword']);
 
 Route::middleware(['userauth'])->group(function(){
+
+    Route::get('/change_password/{id}', [App\Http\Controllers\Auth\PasswordController::class, 'password']);
+    Route::post('/change_password/{id}', [App\Http\Controllers\Auth\PasswordController::class, 'passwordConfirm']);
+
     Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard']);
     Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'index']);
     Route::get('/attendance/{id}/close', [App\Http\Controllers\AttendanceController::class, 'close']);

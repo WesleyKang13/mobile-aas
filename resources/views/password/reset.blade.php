@@ -3,17 +3,17 @@
 
 @section('content')
 <div class="container shadow col-8">
-    {!!FB::open('/change_password/'.$user->id, 'post')!!}
+    {!!FB::open('/reset_password', 'post')!!}
     {!!FB::setErrors($errors)!!}
     @csrf
     <div class="row text-center" style="margin-top:20%; ">
         <div class="col-12">
-            <h1>Change Password</h1>
+            <h1>Reset Password</h1>
         </div>
 
 
         <div class="col-12 pb-2 text-start mt-5">
-            {!!FB::password('current', 'Current Password')!!}</br>
+            {!!FB::input('pin', 'Pin')!!}</br>
             {!!FB::password('password', 'New Password')!!}</br>
             {!!FB::password('password_confirmation', 'New Password Confirmation')!!}</br>
         </div>

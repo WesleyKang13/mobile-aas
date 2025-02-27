@@ -102,8 +102,24 @@ class LoginController extends Controller
 
         $user = User::query()->where('email', $valid['email'])->first();
 
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $pin = '';
+
+        for ($i = 0; $i < 12; $i++) {
+            $pin .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        $expires = time() + 600;
+
+        // Store in session
+        request()->session()->put('auth_pin', $pin);
+        request()->session()->put('auth_expires', $expires);
+        request()->session()->put('auth_email', $user->email);
+
         $data = [
-            'user' => $user
+            'user' => $user,
+            'pin' => $pin
         ];
 
         Mail::send('password.mail', $data, function($message) use ($user) {
@@ -111,43 +127,41 @@ class LoginController extends Controller
             $message->subject('Password Reset Request');
         });
 
-        return back()->withSuccess('Reset Password Mail has sent to the account, please check your inbox.');
-
-
+        return redirect('/reset_password')->withSuccess('Reset Password Mail has sent to the account, please check your inbox.')->with('user', $user);
     }
 
-    public function password($id){
-        $user = User::findOrFail($id);
-        return view('password.change_password')->with('user', $user);
+    public function reset(){
+        return view('password.reset');
     }
 
-    public function passwordConfirm($id){
+    public function resetPassword(){
         $valid = request()->validate([
-            'current' => 'required',
+            'pin' => 'required',
             'password' => 'required|confirmed',
         ]);
 
-        $user = User::findOrFail($id);
+        $pin = request()->session()->get('auth_pin', null);
+        $expires = request()->session()->get('auth_expires', null);
+        $email = request()->session()->get('auth_email', null);
 
-        if (Auth::attempt(['email' => $user->email,
-                'password' => $valid['current'],
-                'enabled' => 1
-             ])){
-
-            // current password is valid
-            $new_password = Hash::make($valid['password']);
-            $user->password = $new_password;
-            $user->save();
-
-            return redirect('/login')->withSuccess('Password Changed Successfully');
-        }else{
-            return back()->withInput()->withError('Incorrect Current Password');
+        if($valid['pin'] !== $pin){
+            return back()->withError('Invalid Pin Code')->withInput();
         }
 
+        if($expires <= time()){
+            return back()->withError('Pin Code has expired')->withInput();
+        }
 
+        // here is fine
+        $user = User::query()->where('email' ,$email)->first();
+
+        $new_password = Hash::make($valid['password']);
+        $user->password = $new_password;
+        $user->save();
+
+        return redirect('/login')->withSuccess('Password reset Successfully');
 
     }
-
 
     public function pin() {
         // Already auth?

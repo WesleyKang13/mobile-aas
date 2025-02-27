@@ -67,6 +67,13 @@ class AttendanceController extends Controller{
         $attendances = Attendance::query()->where('course_id', $course->id)->where('date', date('Y-m-d'))->get();
         $lecturerCoor = '';
 
+        // check if lecturer has open the same attendance again
+        // foreach($attendances as $a){
+        //     if($a->status == 'open' and Auth::user()->role == 'lecturer'){
+        //         return back()->withError('The lecturer has already open for attendance');
+        //     }
+        // }
+
         // check if user has already submit attendance
         $id_arr = [];
 
@@ -80,6 +87,10 @@ class AttendanceController extends Controller{
 
             // else got entries
             foreach($attendances as $a){
+                if($a->user->role == 'lecturer' and $a->status == 'close'){
+                    return back()->withError('Access Denied!');
+                }
+
                 $id_arr[] = $a->user_id;
                 // if user has submitted attendance
                 if(in_array($user->id, $id_arr)){

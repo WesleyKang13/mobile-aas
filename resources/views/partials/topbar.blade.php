@@ -36,7 +36,21 @@
                 </div>
             </ul>
 
-            <a href="/logout" class="nav-link text-dark text-nowrap">Logout</a>
+            <ul class="navbar-nav mb-lg-0 fs-5 text-dark">
+                <li class="user-nav nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user fa-fw text-dark"></i>
+                        <span class="d-none d-md-inline-block text-dark">{{Auth::user()->firstname. ' '.Auth::user()->lastname}}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end text-dark" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#!">Settings</a></li>
+                        <li><a class="dropdown-item" href="/change_password/{{Auth::user()->id}}">Change Password</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+
         </div>
     </div>
 </nav>
