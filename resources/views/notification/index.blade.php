@@ -25,8 +25,8 @@
             @endif
         </div>
 
-        <div class="col-12">
-            <table class="table table-hover table-striped w-100" id="notificationDT">
+        <div class="col-12 table-responsive">
+            <table class="table table-hover table-striped" id="notificationDT">
                 <thead>
                     <tr>
                         @if(request()->get('status') !== 'sent')

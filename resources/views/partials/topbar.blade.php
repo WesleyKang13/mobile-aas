@@ -9,7 +9,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5">
                 <li
-                 class="nav-item d-flex">
+                 class="nav-item d-inline-block d-md-flex">
                     <a class="nav-link text-dark text-nowrap me-auto" href="/dashboard">Dashboard</a>
                     <a class="nav-link text-dark text-nowrap" href="/attendance">Attendance</a>
                 </li>
@@ -17,8 +17,12 @@
 
             <ul class="navbar-nav mb-lg-0 fs-5">
                 <div class="btn-group">
-                    <div class="btn-group dropstart" role="group">
-                      <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split fs-4" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="btn-group dropbottom" role="group">
+
+                    <button type="button" class="btn btn-light text-start ps-0">
+                        <a class="nav-link text-dark text-nowrap fs-4 p-0 m-0" href="/notifications?status=unread"><i class="fa fa-envelope"></i></a>
+                    </button>
+                      <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split fs-4 ps-0" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropstart</span>
                       </button>
                       <ul class="dropdown-menu">
@@ -30,9 +34,6 @@
                         <p class="nav-link text-dark text-nowrap text-muted">Counts are added with replies</p>
                       </ul>
                     </div>
-                    <button type="button" class="btn btn-light">
-                        <a class="nav-link text-dark text-nowrap fs-4 p-0 m-0" href="/notifications?status=unread"><i class="fa fa-envelope"></i></a>
-                    </button>
                 </div>
             </ul>
 

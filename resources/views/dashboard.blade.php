@@ -21,20 +21,25 @@
                     <th>Status</th>
                 </tr>
 
-                @foreach($data as $d)
+                @if(count($data) !== 0)
+                    @foreach($data as $d)
+                        <tr>
+                            <td>{{$d['course_name']}}</td>
+                            <td>{{$d['class_code']}}</td>
+                            <td>{{$d['time']}}</td>
+                            <td>
+                                <div  class="{{($d['status'] == 'No') ? 'badge bg-danger' : 'badge bg-success'}}">
+                                    {{$d['status']}}
+                                </div>
+                            </td>
+
+                        </tr>
+                    @endforeach
+                @else
                     <tr>
-                        <td>{{$d['course_name']}}</td>
-                        <td>{{$d['class_code']}}</td>
-                        <td>{{$d['time']}}</td>
-                        <td>
-                            <div  class="{{($d['status'] == 'No') ? 'badge bg-danger' : 'badge bg-success'}}">
-                                {{$d['status']}}
-                            </div>
-                        </td>
-
+                        <td colspan="4" class="text-center"><span class="text-muted text-center">No Courses For Today :)</span></td>
                     </tr>
-                @endforeach
-
+                @endif
             </table>
         </div>
 

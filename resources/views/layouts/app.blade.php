@@ -16,7 +16,11 @@
     <!-- Stacked Header -->
     @stack('head')
     <!-- /Stacked Header -->
-
+    <style>
+        .navbar{
+            border:none;
+        }
+    </style>
   </head>
 <body class="bg-light bg-gradient">
 
