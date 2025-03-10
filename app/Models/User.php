@@ -17,15 +17,20 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    public function timetable($id){
+    public function timetable($id, $filter = null){
         $today = now();
         $user = User::findOrFail($id);
 
+        if($filter !== null){
+            $today = $filter;
+        }
+
         $date = new DateTime($today);
+
         $day = $date->format("D");
 
         $details = [];
-
+        
         $timetables = DB::table('users_timetables')->where('user_id', $user->id)->get();
 
         foreach($timetables as $t){
@@ -36,9 +41,8 @@ class User extends Authenticatable
                 // get timetable entries
                 $entries = TimetableEntry::query()
                         ->where('timetable_id', $timetable->id)
-                        ->where('day', $day)
+                        ->where('day', lcfirst($day))
                         ->get();
-
                 // loop through the entries
                 foreach($entries as $e){
                     if(ucfirst($e->day) == $day){

@@ -4,8 +4,23 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-12">
-            <h1>{{date('Y-M-d')}}</h1>
+        <?php
+            $date = date('Y-m-d');
+            if(request()->get('date') !== null){
+                $date = request()->get('date');
+            }
+        ?>
+
+        <div class="col-6">
+            <h1>{{($date == null) ? date('Y-M-d D') : $date. ' '.date('D', strtotime($date))}}</h1>
+
+        </div>
+
+
+        <div class="col-6 text-end">
+            <a href="/attendance?date={{date('Y-m-d', strtotime($date. '-1 day'))}}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i></a>
+            <span><b>View Ytd/Tmr</b></span>
+            <a href="/attendance?date={{date('Y-m-d', strtotime($date. '+1 day'))}}" class="btn btn-secondary"><i class="fa-solid fa-arrow-right"></i></a>
         </div>
         @foreach($data as $d)
             <div class="col-md-12">
@@ -36,23 +51,23 @@
                         <p class="card-text">Time: {{$d['time']}}</p>
                         @if(Auth::user()->role == 'lecturer')
                             @if(isset($status[$d['course_id']]) and $status[$d['course_id']] == 'Open')
-                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location" class="btn btn-success w-100 m-1" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
-                                <a href="/attendance/{{$lecturer[$d['course_id']]['id']}}/close" class="btn btn-danger w-100 m-1">Close</a>
+                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location?date={{$date}}" class="btn btn-success w-100 m-1" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
+                                <a href="/attendance/{{$lecturer[$d['course_id']]['id']}}/close?date={{$date}}" class="btn btn-danger w-100 m-1">Close</a>
                             @else
-                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location" class="btn btn-danger w-100 m-1" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
+                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location?date={{$date}}" class="btn btn-danger w-100 m-1" id="geolocation_{{$d['course_id']}}">Take Attendance</a>
                             @endif
 
-                            <a href="/attendance/{{$d['course_id']}}/{{date('Y-m-d')}}" class="btn btn-primary w-100 m-1">Attendance Sheet</a>
+                            <a href="/attendance/{{$d['course_id']}}/{{$date}}" class="btn btn-primary w-100 m-1">Attendance Sheet</a>
 
                         @else
                             @if(isset($status[$d['course_id']]) and $status[$d['course_id']] == 'Successful')
-                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location"
+                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location?date={{$date}}"
                                     class="btn btn-success w-100"
                                     id="geolocation_{{$d['course_id']}}">
                                     Submitted
                                 </a>
                             @else
-                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location"
+                                <a href="/user/{{$user->id}}/course/{{$d['course_id']}}/location?date={{$date}}"
                                     class="btn btn-danger w-100"
                                     id="geolocation_{{$d['course_id']}}">
                                     Submit
@@ -90,7 +105,7 @@
       const accuracy = crd.accuracy;
 
       // Construct the URL with the course ID, latitude, and longitude using backticks (template literals)
-      geolocationBtn.href = `/user/{{$user->id}}/course/${courseId}/location?lat=${lat}&long=${long}&accuracy=${accuracy}`;
+      geolocationBtn.href = `/user/{{$user->id}}/course/${courseId}/location?lat=${lat}&long=${long}&accuracy=${accuracy}&date={{$date}}`;
 
       console.log(`Latitude: ${lat}, Longitude: ${long}`);
       console.log(`More or less ${crd.accuracy} meters.`);

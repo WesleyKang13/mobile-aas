@@ -14,16 +14,29 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller{
     public function index(){
+        // get date from url if exist
+        $search = request()->get('date');
+
         // get current user
         $user = User::findOrFail(Auth::user()->id);
 
         $today = now();
+
         $date = new DateTime($today);
         $week = $date->format('W');
 
-        $data = $user->timetable($user->id);
+        $data = $user->timetable($user->id, $search);
 
-        $attendances = Attendance::query()->where('user_id', $user->id)->where('date', date('Y-m-d'))->get();
+        $attendances = Attendance::query()->where('user_id', $user->id);
+
+        if($search !== null){
+            $attendances = $attendances->where('date', date('Y-m-d', strtotime($search)));
+        }else{
+            $attendances = $attendances->where('date', date('Y-m-d'));
+        }
+
+        $attendances = $attendances->get();
+
         $status = [];
         $lecturer = [];
 
@@ -32,7 +45,15 @@ class AttendanceController extends Controller{
 
         }
 
-        $lecturers = Attendance::query()->where('date', date('Y-m-d'))->get();
+        $lecturers = Attendance::query();
+
+        if($search !== null){
+            $lecturers = $lecturers->where('date', date('Y-m-d', strtotime($search)));
+        }else{
+            $lecturers = $lecturers->where('date', date('Y-m-d'));
+        }
+
+        $lecturers = $lecturers->get();
 
         foreach($lecturers as $l){
             if($l->user->role == 'lecturer'){
@@ -53,6 +74,12 @@ class AttendanceController extends Controller{
     }
 
     public function location($user_id, $course_id){
+        $date = request()->get('date');
+
+        if($date !== date('Y-m-d')){
+            return back()->withError('Access Denied!');
+        }
+
         $latitude = request()->get('lat');
         $longitude = request()->get('long');
         $accuracy = request()->get('accuracy');  // Get accuracy from request
@@ -87,7 +114,7 @@ class AttendanceController extends Controller{
 
             // else got entries
             foreach($attendances as $a){
-                if($a->user->role == 'lecturer' and $a->status == 'close'){
+                if($a->user->role == 'lecturer' and $a->status == 'Close'){
                     return back()->withError('Access Denied!');
                 }
 
@@ -105,29 +132,47 @@ class AttendanceController extends Controller{
                         'lat' => $a->lat,
                         'long' => $a->long
                     ];
+
                 }
 
-                if($lecturer == null and $a->user->role == 'student'){
+                if($lecturer == null and count($attendances) == 0){
                     return back()->withError('The lecturer has not open for attendance');
                 }
             }
         }
 
-        $attendance = new Attendance();
-        $attendance->date = date('Y-m-d');
-        $attendance->course_id = $course->id;
-        $attendance->user_id = $user->id;
+        // check if already open by lecturer
+        $lecturer_existed = Attendance::query()
+                        ->where('course_id', $course->id)
+                        ->where('date', date('Y-m-d'))
+                        ->where('user_id', Auth::user()->id)
+                        ->first();
 
-        if($user->role == 'student'){
-            $attendance->status = 'Successful';
-        }else{
+        if($lecturer_existed !== null and $lecturer_existed->user->role == 'lecturer'){
+            $attendance = Attendance::findOrFail($lecturer_existed->id);
             $attendance->status = 'Open';
+            $attendance->timestamp = date('H:i:s');
+            $attendance->lat = $latitude;
+            $attendance->long = $longitude;
+            $attendance->ip_address = request()->ip();
+            $attendance->save();
+        }else{
+            $attendance = new Attendance();
+            $attendance->date = date('Y-m-d');
+            $attendance->course_id = $course->id;
+            $attendance->user_id = $user->id;
+
+            if($user->role == 'student'){
+                $attendance->status = 'Successful';
+            }else{
+                $attendance->status = 'Open';
+            }
+            $attendance->timestamp = date('H:i:s');
+            $attendance->lat = $latitude;
+            $attendance->long = $longitude;
+            $attendance->ip_address = request()->ip();
+            $attendance->save();
         }
-        $attendance->timestamp = date('H:i:s');
-        $attendance->lat = $latitude;
-        $attendance->long = $longitude;
-        $attendance->ip_address = request()->ip();
-        $attendance->save();
 
         $distance = '';
         if($attendance->user->role == 'student'){
@@ -152,6 +197,12 @@ class AttendanceController extends Controller{
             return back()->withError('Access Denied!');
         }
 
+        $date = request()->get('date');
+
+        if(date('Y-m-d', strtotime($date)) !== date('Y-m-d')){
+            return back()->withError('Access Denied!');
+        }
+
         $attendance->status = 'Close';
         $attendance->save();
 
@@ -160,9 +211,9 @@ class AttendanceController extends Controller{
     }
 
     public function sheet($course_id, $date){
-        if($date !== date('Y-m-d')){
-            return back()->withError('You can only view attendance for today');
-        }
+        // if($date !== date('Y-m-d')){
+        //     return back()->withError('You can only view attendance for today');
+        // }
 
         $attendances = Attendance::query()
             ->where('course_id', $course_id)
@@ -170,7 +221,7 @@ class AttendanceController extends Controller{
             ->get();
 
         if($attendances->isEmpty() or $attendances == null ){
-            return back()->withError('You have not open for attendance yet.');
+            return back()->withError('There are no attendance yet');
         }
 
         $course = '';
@@ -180,9 +231,16 @@ class AttendanceController extends Controller{
             $user = User::findOrFail($att->user_id);
             $course = Course::findOrFail($att->course_id);
 
-            $users[$att->course_id] = [
+            if($user->role == 'lecturer'){
+                $lec_lat = $att->lat;
+                $lec_long = $att->long;
+            }
+
+            $users[$att->user_id] = [
+                'role' => $user->role,
                 'username' => $user->firstname. ' '.$user->lastname,
-                'time' => $att->created_at
+                'time' => $att->created_at,
+                'distance' => $att->distance($att->lat, $att->long, $lec_lat, $lec_long)
             ];
         }
 
@@ -206,6 +264,11 @@ class AttendanceController extends Controller{
             $entries = TimetableEntry::query()->where('timetable_id', $t->id)
                 ->where('day', lcfirst($day))
                 ->first();
+
+
+            if($entries){
+                break;
+            }
         }
 
         $users = [

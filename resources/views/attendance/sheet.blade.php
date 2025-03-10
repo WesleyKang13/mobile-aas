@@ -9,6 +9,7 @@
         </div>
 
         <div class="col-4 text-end">
+            <a href="/attendance/" class="btn btn-warning">Manual Entry</a>
             <a href="/attendance/{{$course->id}}/{{date('Y-m-d')}}/advanced" class="btn btn-primary">Advanced View</a>
             <a href="/attendance" class="btn btn-secondary">Back</a>
         </div>
@@ -18,12 +19,17 @@
                 <tr>
                     <th>Names</th>
                     <th>Time Checked In</th>
+                    <th>Distance</th>
                 </tr>
 
                 @foreach($users as $u)
                     <tr>
                         <td>{{$u['username']}}</td>
                         <td>{{$u['time']}}</td>
+
+                        @if($u['role'] == 'student')
+                            <td>{{number_format($u['distance'])}} meters</td>
+                        @endif
                     </tr>
                 @endforeach
             </table>

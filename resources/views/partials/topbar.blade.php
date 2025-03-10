@@ -72,7 +72,7 @@
                 dataType: "json",
                 success: function (data) {
                     if (data.unread > 0) {
-                        $(".fa-envelope").append('<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"></span>');
+                        $(".fa-envelope").append('<span class="position-absolute top-10 start-0 translate-middle p-2 bg-danger border border-light rounded-circle"></span>');
                     } else {
                         $(".fa-envelope span").remove();
                     }
