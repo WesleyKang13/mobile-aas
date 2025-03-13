@@ -240,7 +240,8 @@ class AttendanceController extends Controller{
                 'role' => $user->role,
                 'username' => $user->firstname. ' '.$user->lastname,
                 'time' => $att->created_at,
-                'distance' => $att->distance($att->lat, $att->long, $lec_lat, $lec_long)
+                'distance' => $att->distance($att->lat, $att->long, $lec_lat, $lec_long),
+                'remarks' => $att->remarks
             ];
         }
 
@@ -314,5 +315,84 @@ class AttendanceController extends Controller{
             'course' => $course,
             'date' => $date
         ]);
+    }
+
+    public function manual($course_id, $date){
+        if($date !== date('Y-m-d')){
+            return back()->withError('You can only have manual entry for today');
+        }
+        
+        $timetables = Timetable::query()->where('course_id', $course_id)->get();
+        $course = Course::findOrFail($course_id);
+
+        $day = date('D', strtotime($date));
+
+        $timetable = '';
+        $entries = [];
+
+        foreach($timetables as $t){
+            $entries = TimetableEntry::query()->where('timetable_id', $t->id)
+                ->where('day', lcfirst($day))
+                ->first();
+
+
+            if($entries){
+                break;
+            }
+        }
+
+        $users = [];
+        $users_timetables = UserTimetable::query()->where('timetable_id', $entries->timetable_id)->get();
+
+        foreach($users_timetables as $ut){
+            if($ut->user->role == 'student'){
+                $users[$ut->user->id] = $ut->user->firstname. ' '.$ut->user->lastname . ' - '.$ut->user->email;
+            }
+        }
+
+        return view('attendance.manual')->with([
+            'course' => $course,
+            'timetable' => $entries,
+            'users' => $users,
+            'date' => $date
+        ]);
+    }
+
+    public function manualEntry($course_id, $date){
+        if($date > date('Y-m-d', strtotime(today()))){
+            return back()->withError('You can only have manual entry for today or before');
+        }
+
+        $valid = request()->validate([
+            'user_id' => 'required|exists:users,id'
+        ]);
+
+        $user = User::findOrFail($valid['user_id']);
+        $course = Course::find($course_id);
+
+        if($course == null){
+            return back()->withError('Invalid course');
+        }
+
+        // check if this user has already submitted attendance
+        $check = Attendance::query()->where('course_id', $course->id)->where('date', $date)->get();
+
+        foreach($check as $c){
+            if($c->user_id == $user->id){
+                return back()->withError('This student has submitted attendance already');
+            }
+        }
+
+        $attendance = new Attendance();
+        $attendance->date = date('Y-m-d', strtotime($date));
+        $attendance->course_id = $course->id;
+        $attendance->user_id = $user->id;
+        $attendance->status = 'Successful';
+        $attendance->timestamp = now();
+        $attendance->ip_address = request()->ip();
+        $attendance->remarks = 'Manual Entry by '.Auth::user()->firstname.' '.Auth::user()->lastname;
+        $attendance->save();
+
+        return redirect('/attendance/'.$course->id.'/'.$date)->withSuccess('Manual Attendance submitted successfully');
     }
 }

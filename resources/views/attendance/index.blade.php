@@ -44,8 +44,12 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-6">
                                 <h5 class="card-title">Course: {{$d['course_name']}}</h5>
+                            </div>
+
+                            <div class="col-6 text-end">
+                                <a href="/attendance/manual/{{$d['course_id']}}/{{$date}}" class="btn btn-primary">Manual Entry</a>
                             </div>
                         </div>
                         <p class="card-text">Time: {{$d['time']}}</p>

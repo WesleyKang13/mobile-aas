@@ -9,7 +9,7 @@
         </div>
 
         <div class="col-4 text-end">
-            <a href="/attendance/" class="btn btn-warning">Manual Entry</a>
+            
             <a href="/attendance/{{$course->id}}/{{date('Y-m-d')}}/advanced" class="btn btn-primary">Advanced View</a>
             <a href="/attendance" class="btn btn-secondary">Back</a>
         </div>
@@ -20,6 +20,7 @@
                     <th>Names</th>
                     <th>Time Checked In</th>
                     <th>Distance</th>
+                    <th>Remarks</th>
                 </tr>
 
                 @foreach($users as $u)
@@ -27,9 +28,18 @@
                         <td>{{$u['username']}}</td>
                         <td>{{$u['time']}}</td>
 
-                        @if($u['role'] == 'student')
+                        @if($u['role'] == 'student' and $u['remarks'] == null)
                             <td>{{number_format($u['distance'])}} meters</td>
+
+                        @elseif($u['role'] == 'lecturer')
+                            <td>Lecturer</td>
+                        @else
+                            <td>
+
+                            </td>
                         @endif
+
+                        <td>{{$u['remarks']}}</td>
                     </tr>
                 @endforeach
             </table>

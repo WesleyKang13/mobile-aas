@@ -25,12 +25,13 @@ class User extends Authenticatable
             $today = $filter;
         }
 
+
         $date = new DateTime($today);
 
         $day = $date->format("D");
 
         $details = [];
-        
+
         $timetables = DB::table('users_timetables')->where('user_id', $user->id)->get();
 
         foreach($timetables as $t){
@@ -56,7 +57,7 @@ class User extends Authenticatable
                 }
             }
         }
-
+        
         return $details;
     }
 }
