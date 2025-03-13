@@ -49,7 +49,10 @@
                             </div>
 
                             <div class="col-6 text-end">
-                                <a href="/attendance/manual/{{$d['course_id']}}/{{$date}}" class="btn btn-primary">Manual Entry</a>
+                                @if(Auth::user()->role == 'lecturer')
+
+                                    <a href="/attendance/manual/{{$d['course_id']}}/{{$date}}" class="btn btn-primary">Manual Entry</a>
+                                @endif
                             </div>
                         </div>
                         <p class="card-text">Time: {{$d['time']}}</p>
