@@ -14,7 +14,7 @@
         </div>
 
         <div class="col-6 text-end mt-2">
-            <a href="/attendance/{{$course->id}}/{{$date}}" class="btn btn-secondary">Back</a>
+            <a href="/attendance" class="btn btn-secondary">Back</a>
             {!!FB::submit('Save', [], true)!!}
         </div>
 

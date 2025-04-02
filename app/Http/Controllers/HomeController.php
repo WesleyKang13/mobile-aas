@@ -33,6 +33,10 @@ class HomeController extends Controller{
 
             $timetable = Timetable::findOrFail($ut->timetable_id);
 
+            if($timetable->to < date('Y-m-d')){
+                continue;
+            }
+
             // get attendance check
             $attendance = Attendance::query()
                 ->where('course_id', $timetable->course_id)
@@ -60,7 +64,6 @@ class HomeController extends Controller{
                     'absent' => $absent
                 ];
             }
-
 
             foreach($entries as $e){
 

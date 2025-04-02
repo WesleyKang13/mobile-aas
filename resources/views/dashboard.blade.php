@@ -9,7 +9,7 @@
         </div>
 
         <div class="col-12">
-            <h1 class="fs-3">Attendance(s) to submit {{date('Y-m-d')}}</h1>
+            <h1 class="fs-3">Attendance(s) to submit {{date('Y-m-d H:i')}}</h1>
         </div>
 
         <div class="col-12">
@@ -21,16 +21,22 @@
                     <th>Status</th>
                 </tr>
 
-                @if(count($data) !== 0)
+                @if(count($data) !== 0 and isset($data))
                     @foreach($data as $d)
                         <tr>
                             <td>{{$d['course_name']}}</td>
                             <td>{{$d['class_code']}}</td>
                             <td>{{$d['time']}}</td>
                             <td>
+                                @if(Auth::user()->role == 'student')
                                 <div  class="{{($d['status'] == 'No') ? 'badge bg-danger' : 'badge bg-success'}}">
                                     {{$d['status']}}
                                 </div>
+                                @elseif(Auth::user()->role == 'lecturer')
+                                <div class="badge bg-primary">
+                                    Lecturer
+                                </div>
+                                @endif
                             </td>
 
                         </tr>
@@ -56,15 +62,20 @@
                     <th style="width:20%;">Attendance Rating</th>
                 </tr>
 
-                @foreach($attendanceData as $id => $attendance)
-                <tr>
-                    <td style="width:80%;">{{$attendance['course_name']}}</td>
-                    <td style="width:20%;">
-                        <canvas id="attendanceDonutChart-{{$id}}" style="height:150px;width:150px;"></canvas>
-                    </td>
-                </tr>
-                @endforeach
-
+                @if(isset($attendanceData))
+                    @foreach($attendanceData as $id => $attendance)
+                    <tr>
+                        <td style="width:80%;">{{$attendance['course_name']}}</td>
+                        <td style="width:20%;">
+                            <canvas id="attendanceDonutChart-{{$id}}" style="height:150px;width:150px;"></canvas>
+                        </td>
+                    </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="2">There are currently no records</td>
+                    </tr>
+                @endif
             </table>
         </div>
     </div>

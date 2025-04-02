@@ -12,7 +12,7 @@
         ?>
 
         <div class="col-6">
-            <h1>{{($date == null) ? date('Y-M-d D') : $date. ' '.date('D', strtotime($date))}}</h1>
+            <h1>{{($date == null) ? date('Y-M-d D H:i:s') : $date. ' '.date('D ', strtotime($date)).' '.date('H:i')}}</h1>
 
         </div>
 
@@ -22,6 +22,8 @@
             <span><b>View Ytd/Tmr</b></span>
             <a href="/attendance?date={{date('Y-m-d', strtotime($date. '+1 day'))}}" class="btn btn-secondary"><i class="fa-solid fa-arrow-right"></i></a>
         </div>
+
+        @if(isset($data))
         @foreach($data as $d)
             <div class="col-md-12">
                 <div class="card mb-5">
@@ -87,6 +89,7 @@
             </div>
 
         @endforeach
+        @endif
     </div>
 </div>
 @endsection
