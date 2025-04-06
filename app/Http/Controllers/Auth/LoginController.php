@@ -22,50 +22,79 @@ class LoginController extends Controller
             return redirect('/')->withSuccess('You are already logged in.');
         }
 
+        $rememberToken = request()->cookie('remember_web_token');
+        if ($rememberToken) {
+            $user = User::where('remember_token', $rememberToken)->first();
+            if ($user) {
+                Auth::login($user, true);
+                request()->session()->put('auth_status', true);
+                return redirect('/dashboard')->withSuccess('Welcome back! You are logged in.');
+            }
+        }
+
         return view('login');
     }
 
     // Process Login
     public function authenticate() {
-        // Already Auth - Redirect (avoid middleware)
+        // Already Authenticated? Redirect to Dashboard
         if (request()->session()->get('auth_status', false)) {
             return redirect('/dashboard')->withSuccess('You are already logged in.');
         }
 
-        // Rules for validation
+        // Validate User Input
         $valid = request()->validate([
             'email' => 'required|email|string|min:3|max:100',
             'password' => 'required|string|min:3|max:100',
         ]);
 
-        // Find user
-        $user = User::query()
-            ->where( 'email', $valid['email']) // By email
-            ->first();
+        // Find User by Email
+        $user = User::where('email', $valid['email'])->first();
 
-        // Not found?
         if ($user == null) {
-            // For security reasons do a password_verify to prevent timing detection (i.e. attacker measures response times to see if a user exists or not).
             password_verify('securitytest-always fail', '$2y$12$luVxhnjXVdCD7d1zX.u9Jehpa0saogVXeIz/5IcFTY1XBp3UaLiWi');
-
-            // Auth Failure
             return back()->withInput()->withError('Authentication Failed.');
-        }else{
-            if (!$user or !Hash::check($valid['password'], $user->password) or $user->enabled != 1) {
-                return back()->withInput()->withError('Authentication Failed.');
-            }
-
-            $this->mailPin($valid['email']);
-
-            // Redirect
-            return redirect('/pin')->withSuccess('Please check your inbox for the pin');
         }
+
+        if (!Hash::check($valid['password'], $user->password) or $user->enabled != 1) {
+            return back()->withInput()->withError('Authentication Failed.');
+        }
+
+        $rememberMe = request()->has('remember_me') ? true : false;
+
+        if ($rememberMe) {
+            $rememberToken = Hash::make(uniqid('', true));
+
+            $user->remember_token = $rememberToken;
+            $user->save();
+
+            cookie()->queue('remember_web_token', $rememberToken, 43200); // 30 days
+        }
+
+        if ($rememberMe) {
+            Auth::login($user, true);
+            request()->session()->put('auth_status', true);
+            return redirect('/dashboard')->withSuccess('Welcome back! You are logged in.');
+        }
+
+        $this->mailPin($valid['email']);
+
+        return redirect('/pin')->withSuccess('Please check your inbox for the PIN.');
     }
+
+
+
 
     // Logout/Destroy Session
     public function logout() {
         $request = request();
         $user_id = Auth::user()->id;
+        $user = Auth::user();
+
+        if ($user) {
+            $user->remember_token = null;
+            $user->save();
+        }
 
         // Log out from session
         Auth::logout();
@@ -73,6 +102,8 @@ class LoginController extends Controller
         $request->session()->flush();
         // Regenerate session id
         $request->session()->regenerate();
+
+        cookie()->queue(cookie()->forget('remember_web_token'));
 
         // Destroy All User Sessions?
         if (request()->get('all', false) !== false) {
@@ -163,90 +194,73 @@ class LoginController extends Controller
 
     }
 
-    public function pin() {
-        // Already auth?
+    public function pin()
+    {
         if (request()->session()->get('auth_status', false)) {
             return redirect('/dashboard')->withSuccess('You are already logged in.');
         }
 
-
-        // POST
         if (request()->post()) {
-            // Validate
             $valid = request()->validate([
                 'pin' => 'required|min:6|max:10'
             ]);
 
-            // Get details from session
             $pin = request()->session()->get('auth_pin', null);
             $expires = request()->session()->get('auth_expires', null);
             $email = request()->session()->get('auth_email', null);
 
-            // Null
-            if($pin === null or $expires === null or $email === null) {
-                return redirect('/login')->withError('Missing require data. Please try again.');
+            if ($pin === null || $expires === null || $email === null) {
+                return redirect('/login')->withError('Missing required data. Please try again.');
             }
 
-            // Too late?
             if ($expires <= time()) {
                 return redirect('/login')->withError('The PIN code has expired. Please try again.');
             }
 
             if ($pin == $valid['pin']) {
-                //Attempt Auth - username/email, password, enabled
+                $user = User::where('email', $email)->first();
 
+                $remember = request()->session()->get('auth_remember', false);
+                Auth::login($user, $remember);
 
-                    $user = User::query()->where('email' ,$email)->first();
+                $user->timestamps = false;
+                $user->lastlogin_at = Carbon::now();
+                $user->lastlogin_ip = request()->ip();
+                $user->save();
+                $user->timestamps = true;
 
-                    Auth::login($user);
+                request()->session()->put('auth_pin', null);
+                request()->session()->put('auth_expires', null);
+                request()->session()->put('auth_email', $email);
+                request()->session()->put('auth_status', true);
 
-                    // Login is successful - set last login details
-                    $user->timestamps = false; // Disalbe updated_at
-                    $user->lastlogin_at = Carbon::now();
-                    $user->lastlogin_ip = request()->ip();
-                    $user->save();
-                    $user->timestamps = true; // Re-enable timestamps
-
-
-                    request()->session()->put('auth_pin', null);
-                    request()->session()->put('auth_expires', null);
-                    request()->session()->put('auth_email', $email);
-                    request()->session()->put('auth_status', true);
-
-                    return redirect('/')->withSuccess('You have been authenticated');
-
-
+                return redirect('/')->withSuccess('You have been authenticated.');
             }
 
-            // Fail
             return redirect('/pin')->withError('Invalid PIN Code.');
-
         }
 
-        // Just display form
         return view('pin');
     }
 
-    private function mailPin($email) {
-        // Generate a pin, store in sessin along with expires
 
-        // Generate PIN & expiration
-        $pin = mt_rand(100000,999999);
+    private function mailPin($email)
+    {
+        $pin = mt_rand(100000, 999999);
         $expires = time() + 600;
 
-        // Store in session
         request()->session()->put('auth_pin', $pin);
         request()->session()->put('auth_expires', $expires);
         request()->session()->put('auth_email', $email);
         request()->session()->put('auth_status', false);
 
-        // Send email
-        Mail::to($email)->send(new AuthMail(
-            [
-                'email' => $email,
-                'pin' => $pin
-            ]
-        ));
+        // Store "Remember Me" option
+        request()->session()->put('auth_remember', request()->has('remember'));
 
+        Mail::to($email)->send(new AuthMail([
+            'email' => $email,
+            'pin' => $pin
+        ]));
     }
+
 }

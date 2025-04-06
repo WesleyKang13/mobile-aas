@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -17,29 +18,33 @@ class UserAuth
      */
     public function handle(Request $request, Closure $next, String $role = null): Response
     {
-        if (!request()->session()->get('auth_status', false)) {
-            return redirect('/login')->withSuccess('You must login first!.');
-        }
-
-        // Check if Not Authenticated
         if (!Auth::check()) {
-            // Not Authenticated - Redirect
-            return redirect('/login')->withError('You must login first!');
+            // Check if there's a remember_token in the cookie
+            if ($request->hasCookie('remember_web_token')) {
+                $rememberToken = $request->cookie('remember_web_token');
+                $user = User::where('remember_token', $rememberToken)->first();
+
+                if ($user) {
+                    // Authenticate the user if the token matches
+                    Auth::login($user, true);  // The second parameter true ensures that the user is remembered
+                    return redirect('/dashboard');
+                }
+            }
+
+            // If not authenticated and no valid cookie, redirect to login
+            return redirect('/login')->withError('You must log in first!');
         }
 
-        // At this stage we are authenticated - fetch user data
         $user = Auth::user();
-
-        // Ensure enabled
         if ($user->enabled != 1) {
-            // User is disabled - logout and redirect
             Auth::logout();
-            request()->session()->flush(); // fliush session
-            request()->session()->regenerate(); // Regenerate session id
+            $request->session()->flush();
+            $request->session()->regenerate();
             return redirect('/login')->withError('Your user account has been disabled!');
         }
 
-
         return $next($request);
     }
+
+
 }

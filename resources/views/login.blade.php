@@ -15,7 +15,8 @@
 
         <div class="col-12 pb-2 text-start mt-5">
             {!!FB::input('email', 'Email')!!}</br>
-            {!!FB::password('password', 'Password')!!}
+            {!!FB::password('password', 'Password')!!}</br>
+            
         </div>
 
 

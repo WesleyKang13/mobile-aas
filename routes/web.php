@@ -53,6 +53,11 @@ Route::middleware(['userauth'])->group(function(){
     Route::post('/notifications/{id}/reply', [App\Http\Controllers\NotificationController::class, 'reply']);
     Route::get('/notifications/{id}/send', [App\Http\Controllers\NotificationController::class, 'send']);
     Route::get('/notifications/{id}/download_attachment', [App\Http\Controllers\NotificationController::class, 'download']);
+
+    // settings
+    Route::get('/settings', [App\Http\Controllers\SettingsController::class, 'index']);
+    Route::post('/settings/remember', [App\Http\Controllers\SettingsController::class, 'updateRememberMe']);
+
 });
 
 
