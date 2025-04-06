@@ -44,7 +44,7 @@
                         <span class="d-none d-md-inline-block text-dark">{{Auth::user()->firstname. ' '.Auth::user()->lastname}}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end text-dark" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!">Settings</a></li>
+                        <li><a class="dropdown-item" href="/settings">Settings</a></li>
                         <li><a class="dropdown-item" href="/change_password/{{Auth::user()->id}}">Change Password</a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
