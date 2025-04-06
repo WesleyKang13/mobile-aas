@@ -27,7 +27,7 @@ class UserAuth
                 if ($user) {
                     // Authenticate the user if the token matches
                     Auth::login($user, true);  // The second parameter true ensures that the user is remembered
-                    return redirect('/dashboard');
+                    return redirect('/dashboard')->withSuccess('Welcome back! You are logged in.');
                 }
             }
 
