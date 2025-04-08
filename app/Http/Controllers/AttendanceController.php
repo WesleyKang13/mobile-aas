@@ -346,7 +346,7 @@ class AttendanceController extends Controller{
 
         foreach($users_timetables as $ut){
             if($ut->user->role == 'student'){
-                $users[$ut->timetable_id] = $ut->user->firstname. ' '.$ut->user->lastname . ' - '.$ut->user->email;
+                $users[$ut->user_id] = $ut->user->firstname. ' '.$ut->user->lastname . ' - '.$ut->user->email;
             }
         }
 
