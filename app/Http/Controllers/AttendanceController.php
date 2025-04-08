@@ -321,7 +321,7 @@ class AttendanceController extends Controller{
         if($date !== date('Y-m-d')){
             return back()->withError('You can only have manual entry for today');
         }
-        
+
         $timetables = Timetable::query()->where('course_id', $course_id)->get();
         $course = Course::findOrFail($course_id);
 
@@ -346,7 +346,7 @@ class AttendanceController extends Controller{
 
         foreach($users_timetables as $ut){
             if($ut->user->role == 'student'){
-                $users[$ut->user->id] = $ut->user->firstname. ' '.$ut->user->lastname . ' - '.$ut->user->email;
+                $users[$ut->timetable_id] = $ut->user->firstname. ' '.$ut->user->lastname . ' - '.$ut->user->email;
             }
         }
 
